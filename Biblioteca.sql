@@ -177,6 +177,28 @@ INSERT INTO Autor(nombre,apellidos,idNacionalidad,biografia) VALUES('Ines','Alar
 
 select * from autor;
 
+CREATE TABLE Ubicacion(
+    idUbicacion int identity(1,1) NOT NULL,
+    estanteria varchar(50) NOT NULL,
+    descripcionAdicional varchar(100) NOT NULL,
+    primary key(idUbicacion)
+)
+
+-- Insertar ubicaciones en la tabla Ubicacion
+INSERT INTO Ubicacion (estanteria, descripcionAdicional)
+VALUES 
+('Estantería A', 'Literatura clásica - Primer piso, pasillo central'),
+('Estantería B', 'Ciencia ficción y fantasía - Segundo piso, ala norte'),
+('Estantería C', 'Revistas actuales - Primer piso, cerca de la entrada'),
+('Estantería D', 'Documentales y películas - Planta baja, ala este'),
+('Estantería E', 'Historia y biografías - Segundo piso, pasillo oeste'),
+('Estantería F', 'Referencias y enciclopedias - Primer piso, sección especial'),
+('Estantería G', 'Libros infantiles - Planta baja, área para niños'),
+('Estantería H', 'Filosofía y religión - Segundo piso, ala sur'),
+('Estantería I', 'Tecnología y computación - Planta baja, cerca de la sala de estudio'),
+('Estantería J', 'Arte y diseño - Segundo piso, pasillo central');
+
+
 CREATE TABLE Material(
     idMaterial int identity(1,1) NOT NULL,
     isbn VARCHAR(50) NOT NULL,
@@ -185,11 +207,14 @@ CREATE TABLE Material(
     codigoAutor int NOT NULL, 
     idGeneroMaterial int NOT NULL, 
     idTipoMaterial INT NOT NULL,
+    idUbicacion INT NOT NULL,
     primary key (idMaterial),
     foreign key (idGeneroMaterial) references GeneroMaterial(idGeneroMaterial),
     foreign key (idTipoMaterial) REFERENCES TipoMaterial(idTipoMaterial),
-    foreign key (codigoAutor) REFERENCES Autor(codigoAutor)
+    foreign key (codigoAutor) REFERENCES Autor(codigoAutor),
+    foreign key (idUbicacion) REFERENCES Ubicacion(idUbicacion)
 );
+select * from Material;
 
 
 -- Insertar materiales (Libros, Revistas, Películas) con relaciones a TipoMaterial y Autor
@@ -197,48 +222,44 @@ CREATE TABLE Material(
 select * from TipoMaterial;
 
 -- Insertar un libro
-INSERT INTO Material (isbn,titulo,edicion,codigoAutor,idGeneroMaterial,idTipoMaterial)
-VALUES ('978-3-16-148410-0', 'El Alquimista', '1ª Edición',1,1,1); 
+INSERT INTO Material (isbn,titulo,edicion,codigoAutor,idGeneroMaterial,idTipoMaterial,idUbicacion)
+VALUES ('978-3-16-148410-0', 'El Alquimista', '1ª Edición',1,1,1,1); 
 
 -- Insertar una revista
-INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial)
-VALUES ('978-0-15-1000-1', 'Revista de Tecnología', 'Vol. 1, No. 1', 2, 2, 2);  -- Revista, Autor 2, Género: Ciencia Ficción
+INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial,idUbicacion)
+VALUES ('978-0-15-1000-1', 'Revista de Tecnología', 'Vol. 1, No. 1', 2, 2, 2,1);  -- Revista, Autor 2, Género: Ciencia Ficción
 
 -- Insertar una película
-INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial)
-VALUES ('N/A', 'La Guerra de las Galaxias', 'Edición Especial', 3, 4, 3);  -- Película, Autor 3, Género: Drama
+INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial,idUbicacion)
+VALUES ('N/A', 'La Guerra de las Galaxias', 'Edición Especial', 3, 4, 3,1);  -- Película, Autor 3, Género: Drama
 
 -- Insertar otro libro
-INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial)
-VALUES ('978-0-7432-7356-5', 'El Código Da Vinci', '2ª Edición', 4, 1, 1);  -- Libro, Autor 4, Género: Ficción
+INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial,idUbicacion)
+VALUES ('978-0-7432-7356-5', 'El Código Da Vinci', '2ª Edición', 4, 1, 1,2);  -- Libro, Autor 4, Género: Ficción
 
 -- Insertar otra revista
-INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial)
-VALUES ('978-1-43-0210-0', 'Revista de Arte', 'Vol. 5, No. 4', 5, 3, 2);  -- Revista, Autor 5, Género: No Ficción
+INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial,idUbicacion)
+VALUES ('978-1-43-0210-0', 'Revista de Arte', 'Vol. 5, No. 4', 5, 3, 2,3);  -- Revista, Autor 5, Género: No Ficción
 
 -- Insertar una película más
-INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial)
-VALUES ('N/A', 'Jurassic Park', 'Edición de Coleccionista', 6, 4, 3);  -- Película, Autor 6, Género: Drama
+INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial,idUbicacion)
+VALUES ('N/A', 'Jurassic Park', 'Edición de Coleccionista', 6, 4, 3,4);  -- Película, Autor 6, Género: Drama
 
 -- Insertar otro libro
-INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial)
-VALUES ('978-0-452-28423-4', '1984', '1ª Edición', 7, 1, 1);  -- Libro, Autor 7, Género: Ficción
+INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial,idUbicacion)
+VALUES ('978-0-452-28423-4', '1984', '1ª Edición', 7, 1, 1,5);  -- Libro, Autor 7, Género: Ficción
 
 -- Insertar una revista más
-INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial)
-VALUES ('978-0-14-312875-4', 'National Geographic', 'Vol. 20, No. 10', 8, 3, 2);  -- Revista, Autor 8, Género: No Ficción
+INSERT INTO Material (isbn, titulo, edicion, codigoAutor, idGeneroMaterial, idTipoMaterial,idUbicacion)
+VALUES ('978-0-14-312875-4', 'National Geographic', 'Vol. 20, No. 10', 8, 3, 2,5);  -- Revista, Autor 8, Género: No Ficción
 
 
-select * from Autor;
+select * from Miembro;
 
 -- mostrar isbn,titulo,edicion,genero, nombre y apellido del autor
 select isbn,titulo,edicion,nombreGenero AS Genero,nombre AS "Nombre autor",apellidos AS "Apellidos autor" FROM Material 
 INNER JOIN GeneroMaterial ON Material.idGeneroMaterial=GeneroMaterial.idGeneroMaterial
 INNER JOIN Autor ON Material.codigoAutor=Autor.codigoAutor;
-
-
-
-
 
 -- mostrar isbn,titulo,edicion,genero, nombre y apellido del autor con el pais
 select isbn,titulo,edicion,nombreGenero AS Genero,nombre AS "Nombre autor",apellidos AS "Apellidos autor",pais FROM Material 
@@ -250,7 +271,6 @@ INNER JOIN Nacionalidad ON Autor.idNacionalidad=Nacionalidad.idNacionalidad;
 select count(*),nombreGenero FROM Material INNER JOIN GeneroMaterial ON Material.idGeneroMaterial=GeneroMaterial.idGeneroMaterial
 INNER JOIN Autor ON Material.codigoAutor=Autor.codigoAutor
 INNER JOIN Nacionalidad ON Autor.idNacionalidad=Nacionalidad.idNacionalidad GROUP BY nombreGenero;
-
 
 -- seleccionar todos los autores
 select * from Autor;
@@ -264,25 +284,92 @@ select count(*) AS cantidad,pais from AUTOR
 INNER JOIN Nacionalidad ON Autor.idNacionalidad=Nacionalidad.idNacionalidad GROUP BY pais;
 
 
+CREATE TABLE Compras(
+    idCompra int identity(1,1) NOT NULL,
+    numeroFacturaCompra varchar(20) NOT NULL,
+    unidad int NOT NULL,
+    precio decimal(10,2) NOT NULL,
+    fechaCompra DATE NOT NULL,
+    idMaterial int NOT NULL,
+    idMiembro int NOT NULL,
+    CONSTRAINT CK_Precio CHECK (precio >=1),
+    PRIMARY KEY (idCompra),
+    FOREIGN KEY (idMaterial) references Material(idMaterial),
+    FOREIGN KEY (idMiembro) REFERENCES Miembro(idMiembro)
+);
 
-
-
-
-
-
--- Insertar libros en la tabla Libros
-INSERT INTO Libros(isbn,titulo,edicion,codigoAutor,idGeneroLibro) VALUES('ISBN-10: 8497593062','El diario de Ana Frank','En español',1,1);
-INSERT INTO Libros(isbn, titulo, edicion, codigoAutor, idGeneroLibro) VALUES('ISBN-13: 978-8434851234', 'Un pirata en la India', 'Edición especial',4, 4);
-INSERT INTO Libros(isbn, titulo, edicion, codigoAutor, idGeneroLibro) VALUES('ISBN-13: 978-0156012195', 'El Principito', 'Edición de lujo',3, 4);
-INSERT INTO Libros(isbn, titulo, edicion, codigoAutor, idGeneroLibro) VALUES('ISBN-13: 978-0140449112', 'La Ilíada y la Odisea', 'Edición crítica',2, 3);
-INSERT INTO Libros(isbn, titulo, edicion, codigoAutor, idGeneroLibro) VALUES('ISBN-13: 978-0451419439', 'Los Miserables', 'Edición conmemorativa',5, 3);
-INSERT INTO Libros(isbn,titulo,edicion,codigoAutor,idGeneroLibro) VALUES('ISBN-13: 978-8497593067','Crimen y castigo','Edición de bolsillo',12,2);
-INSERT INTO Libros(isbn,titulo,edicion,codigoAutor,idGeneroLibro) VALUES('ISBN-13: 978-8478884456','Harry Potter y la piedra filosofal', 'Edición especial',8,6);
-INSERT INTO Libros(isbn,titulo,edicion,codigoAutor,idGeneroLibro) VALUES('ISBN-13: 978-8420412146','Don Quijote de la Mancha', 'Edición conmemorativa',9,4);
-INSERT INTO Libros(isbn,titulo,edicion,codigoAutor,idGeneroLibro) VALUES('ISBN-13: 978-8498724240','El juego de Ender','Edición de colección',10,2);
-INSERT INTO Libros(isbn,titulo,edicion,codigoAutor,idGeneroLibro) VALUES('ISBN-13: 972-8594724260','La historia de Santos','Edición de colección',12,7);
-INSERT INTO Libros(isbn,titulo,edicion,codigoAutor,idGeneroLibro) VALUES('ISBN-13: 765-9544724260','Libro escritor por Ines','Edición personal',13,8);
 
 -- mostrar libros registrados;
-select * from libros;
+select * from Material;
+
+-- Insertar compras de materiales para diferentes miembros
+INSERT INTO Compras (numeroFacturaCompra, unidad, precio, fechaCompra, idMaterial, idMiembro)
+VALUES ('FAC001', 2, 450.00, '2024-11-15', 1, 2);  
+
+INSERT INTO Compras (numeroFacturaCompra, unidad, precio, fechaCompra, idMaterial, idMiembro)
+VALUES ('FAC002', 1, 300.50, '2024-11-10', 2, 3); 
+
+INSERT INTO Compras (numeroFacturaCompra, unidad, precio, fechaCompra, idMaterial, idMiembro)
+VALUES ('FAC003', 3, 1200.00, '2024-11-12', 3, 4); 
+
+INSERT INTO Compras (numeroFacturaCompra, unidad, precio, fechaCompra, idMaterial, idMiembro)
+VALUES ('FAC004', 1, 250.75, '2024-11-14', 4, 5);
+
+INSERT INTO Compras (numeroFacturaCompra, unidad, precio, fechaCompra, idMaterial, idMiembro)
+VALUES ('FAC005', 2, 500.00, '2024-11-16', 5, 6);  
+
+INSERT INTO Compras (numeroFacturaCompra, unidad, precio, fechaCompra, idMaterial, idMiembro)
+VALUES ('FAC006', 1, 800.00, '2024-11-13', 6, 2); 
+
+INSERT INTO Compras (numeroFacturaCompra, unidad, precio, fechaCompra, idMaterial, idMiembro)
+VALUES ('FAC007', 4, 1600.00, '2024-11-17', 7, 3);  -- Material 7, Miembro 3
+
+INSERT INTO Compras (numeroFacturaCompra, unidad, precio, fechaCompra, idMaterial, idMiembro)
+VALUES ('FAC008', 1, 700.00, '2024-11-11', 8, 4);  -- Material 8, Miembro 4
+
+
+-- muestra el total de compra por factura, con la fecha de compra
+select sum(unidad*precio) as 'Total compra', numeroFacturaCompra,fechaCompra from Compras
+GROUP BY numeroFacturaCompra,fechaCompra;
+
+
+-- hace un resumen de titulo, edicion, autor y genero
+select isbn,titulo,edicion,nombre,apellidos,nombreGenero AS 'Genero' from Material
+INNER JOIN Autor ON Material.codigoAutor=Autor.codigoAutor
+INNER JOIN GeneroMaterial ON Material.idGeneroMaterial=GeneroMaterial.idGeneroMaterial;
+
+
+-- hace un resumen de lo que se compro la factura, las unidades, precios, fecha de compras
+-- SELECT numeroFacturaCompra,unidad,precio,fechaCompra,isbn,titulo,nombreGenero FROM Compras
+-- INNER JOIN Material ON Compras.idMaterial=Material.idMaterial
+-- INNER JOIN GeneroMaterial ON Material.idGeneroMaterial=GeneroMaterial.idGeneroMaterial;
+
+select * from Compras ;
+
+-- contar la cantidad de libros, revistas, peliculas comprados por genero
+SELECT 
+    GeneroMaterial.nombreGenero as 'Genero libro', 
+    SUM(Compras.unidad) AS 'Unidades compradas'
+FROM 
+    Compras
+INNER JOIN 
+    Material ON Compras.idMaterial = Material.idMaterial
+INNER JOIN 
+    GeneroMaterial ON Material.idGeneroMaterial = GeneroMaterial.idGeneroMaterial
+GROUP BY 
+    GeneroMaterial.nombreGenero;
+
+
+CREATE TABLE Prestamos(
+    idPrestamo int identity(1,1) NOT NULL,
+    fechaPrestamo datetime NOT NULL,
+    estadoPrestamo char(1) NOT NULL DEFAULT 'P',
+    fechaDevolucion date NOT NULL,
+    idMiembro int NOT NULL,
+    idMaterial int not null,
+    PRIMARY KEY (idPrestamo),
+    FOREIGN KEY (idMiembro) REFERENCES Miembro(idMiembro),
+    FOREIGN KEY (idMaterial) REFERENCES Material(idMaterial)
+);
+
 
