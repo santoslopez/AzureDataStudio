@@ -372,4 +372,114 @@ CREATE TABLE Prestamos(
     FOREIGN KEY (idMaterial) REFERENCES Material(idMaterial)
 );
 
+-- Eliminar el procedimiento si ya existe
+IF OBJECT_ID('dbo.InsertarPrestamo') IS NOT NULL
+    DROP PROCEDURE dbo.InsertarPrestamo;
+GO
+CREATE PROCEDURE InsertarPrestamo
+    @fechaPrestamo datetime,
+    @fechaDevolucion date,
+    @idMiembro int,
+    @idMaterial int
+AS
+BEGIN
+    -- Inicio de la transacción
+    BEGIN TRANSACTION;
 
+    -- Verificar si hay unidades disponibles del libro
+    DECLARE @unidadesDisponibles int;
+
+    SELECT @unidadesDisponibles = SUM(unidad)
+    FROM Compras
+    WHERE idMaterial = @idMaterial;
+
+    IF @unidadesDisponibles > 0
+    BEGIN
+        -- Insertar el préstamo
+        INSERT INTO Prestamos (fechaPrestamo, estadoPrestamo, fechaDevolucion, idMiembro,idMaterial)
+        VALUES (@fechaPrestamo,'P', @fechaDevolucion,@idMiembro,@idMaterial);
+
+        -- Actualizar la tabla Compras restando una unidad
+        UPDATE Compras
+        SET unidad = unidad - 1
+        WHERE idMaterial = @idMaterial
+          AND unidad > 0
+          AND idCompra = (
+              SELECT TOP 1 idCompra
+              FROM Compras
+              WHERE idMaterial = @idMaterial
+              ORDER BY fechaCompra
+          );
+
+        -- Confirmar la transacción
+        COMMIT TRANSACTION;
+    END
+    ELSE
+    BEGIN
+        -- Revertir la transacción si no hay unidades disponibles
+        ROLLBACK TRANSACTION;
+
+        -- Lanzar un error o retornar un mensaje de error
+        RAISERROR ('No hay unidades disponibles para este libro.',16, 1);
+    END
+END;
+GO
+
+
+-- creando prestamos para los usuarios que no son administradores, bibliotecarios
+DECLARE @fechaHoy datetime = GETDATE(); 
+DECLARE @idMiembroo int = 3;  
+DECLARE @fechaDevolucionn date = DATEADD(day, 14, GETDATE())
+EXEC InsertarPrestamo '2024-06-19 10:00:00','2024-07-03',@idMiembroo,1;
+EXEC InsertarPrestamo '2024-06-03 10:00:00','2024-06-17',3,2;
+EXEC InsertarPrestamo '2024-05-04 10:00:00','2024-05-18',4,3;
+EXEC InsertarPrestamo '2024-06-03 10:00:00','2024-06-19',5,4;
+
+-- materiales disponible en la biblioteca
+SELECT unidad,isbn,titulo,nombreGenero,nombreTipoMaterial FROM Compras
+INNER JOIN Material ON Compras.idMaterial=Material.idMaterial
+INNER JOIN GeneroMaterial ON Material.idGeneroMaterial=GeneroMaterial.idGeneroMaterial
+INNER JOIN TipoMaterial ON Material.idTipoMaterial=Material.idTipoMaterial
+WHERE Material.idTipoMaterial=TipoMaterial.idTipoMaterial;
+
+
+-- muestra nombre y apellidos, fecha prestamo, fecha devolucion, disas devolver libro, nombre libro, estado prestamo, multa
+SELECT
+    CONCAT(nombres, ' ', apellidos) AS 'Nombre y apellidos',
+    CAST(fechaPrestamo AS DATE) AS 'Fecha prestamo',
+    CAST(fechaDevolucion AS DATE) AS 'Fecha devolucion',
+    DATEDIFF(DAY, GETDATE(), fechaDevolucion) AS 'Dias devolver libro',
+    titulo AS 'Nombre libro',
+    CASE 
+        WHEN estadoPrestamo = 'P' THEN 'PRESTADO'
+        ELSE estadoPrestamo -- Esto mantendrá el valor original si no coincide con ninguna condición
+    END AS 'Estado prestamo',
+    CASE 
+        WHEN DATEDIFF(DAY, fechaDevolucion, GETDATE()) > 0 
+        THEN DATEDIFF(DAY, fechaDevolucion, GETDATE()) * 5
+        ELSE 0
+    END AS 'Multa (Quetzales)'
+FROM
+    Prestamos
+INNER JOIN
+    Miembro ON Prestamos.idMiembro = Miembro.idMiembro INNER JOIN Material ON Prestamos.idMaterial = Prestamos.idMaterial
+WHERE estadoPrestamo = 'P'; -- Filtrar solo los préstamos activos
+
+
+
+-- Contar la cantidad de libros comprados y prestados por género
+SELECT 
+    GeneroMaterial.nombreGenero AS 'Genero libro', 
+    SUM(COALESCE(Compras.unidad, 0)) AS 'Unidades disponibles en biblioteca',
+    COUNT(CASE WHEN Prestamos.idPrestamo IS NOT NULL THEN 1 END) AS 'Unidades prestadas',
+    SUM(COALESCE(Compras.unidad, 0)) + COUNT(CASE WHEN Prestamos.idPrestamo IS NOT NULL THEN 1 END) AS 'Total libros'
+FROM 
+    Material
+LEFT JOIN 
+    Compras ON Compras.idMaterial = Material.idMaterial
+LEFT JOIN 
+    Prestamos ON Prestamos.idMaterial = Material.idMaterial
+INNER JOIN 
+    GeneroMaterial ON Material.idGeneroMaterial= GeneroMaterial.idGeneroMaterial
+GROUP BY 
+    GeneroMaterial.nombreGenero;
