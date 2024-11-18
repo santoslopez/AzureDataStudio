@@ -483,3 +483,57 @@ INNER JOIN
     GeneroMaterial ON Material.idGeneroMaterial= GeneroMaterial.idGeneroMaterial
 GROUP BY 
     GeneroMaterial.nombreGenero;
+
+
+
+-- Mostrar los que hayan entregado los libros
+SELECT
+    CONCAT(nombres, ' ', apellidos) AS 'Nombre y apellidos',
+    CAST(fechaPrestamo AS DATE) AS 'Fecha prestamo',
+    CAST(fechaDevolucion AS DATE) AS 'Fecha devolucion',
+    5 AS 'MultaxDia -',
+    DATEDIFF(DAY, GETDATE(), fechaDevolucion) AS 'Devolver en:',
+    titulo AS 'Nombre libro',
+    CASE 
+        WHEN estadoPrestamo = 'P' THEN 'PRESTADO'
+        ELSE estadoPrestamo -- Esto mantendrá el valor original si no coincide con ninguna condición
+    END AS 'Estado',
+    CASE 
+        WHEN DATEDIFF(DAY, fechaDevolucion, GETDATE()) > 0 
+        THEN DATEDIFF(DAY, fechaDevolucion, GETDATE()) * 5
+        ELSE 0
+    END AS 'Multa Q.'
+FROM
+    Prestamos
+INNER JOIN
+    Miembro ON Prestamos.idMiembro = Miembro.idMiembro INNER JOIN Material ON Prestamos.idMaterial = Material.idMaterial
+WHERE estadoPrestamo != 'P' AND MONTH(fechaPrestamo)= MONTH(GETDATE()) AND YEAR(fechaPrestamo) = YEAR(GETDATE());
+
+
+
+-- creando indice
+CREATE INDEX idx_idGeneroMaterial ON Material(idGeneroMaterial);
+
+
+-- Mostrar los que tengan libros prestados
+SELECT
+    CONCAT(nombres, ' ', apellidos) AS 'Nombre y apellidos',
+    CAST(fechaPrestamo AS DATE) AS 'Fecha prestamo',
+    CAST(fechaDevolucion AS DATE) AS 'Fecha devolucion',
+    5 AS 'MultaxDia -',
+    DATEDIFF(DAY, GETDATE(), fechaDevolucion) AS 'Devolver en:',
+    titulo AS 'Nombre libro',
+    CASE 
+        WHEN estadoPrestamo = 'P' THEN 'PRESTADO'
+        ELSE estadoPrestamo -- Esto mantendrá el valor original si no coincide con ninguna condición
+    END AS 'Estado',
+    CASE 
+        WHEN DATEDIFF(DAY, fechaDevolucion, GETDATE()) > 0 
+        THEN DATEDIFF(DAY, fechaDevolucion, GETDATE()) * 5
+        ELSE 0
+    END AS 'Multa Q.'
+FROM
+    Prestamos
+INNER JOIN
+    Miembro ON Prestamos.idMiembro = Miembro.idMiembro INNER JOIN Material ON Prestamos.idPrestamo = Material.idMaterial
+WHERE DATEDIFF(DAY, GETDATE(), fechaDevolucion) <0 ;
